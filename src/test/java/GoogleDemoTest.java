@@ -12,10 +12,18 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Demo {
+public class GoogleDemoTest {
 
+    private static final String seleniumHubUrl = System.getenv("SELENIUM_HUB_URL");
+    private static final String isHeadless = System.getenv("HEADLESS");
     private WebDriver driver;
 
+    /**
+     * The beforeClass method is called before any test in the class is called.
+     * It is used to set up the WebDriver instance.
+     * If the SELENIUM_HUB_URL environment variable is not set or is empty, the code will use the local ChromeDriver.
+     * Otherwise it will use the Selenium Grid Hub at the given URL.
+     */
     @BeforeTest
     public void beforeClass() {
         if (driver == null) {
@@ -28,10 +36,12 @@ public class Demo {
             chromeOptions.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
             chromeOptions.setExperimentalOption("useAutomationExtension", false);
             chromeOptions.addArguments("disable-infobars");
-//            chromeOptions.addArguments("--headless");
-//            chromeOptions.addArguments("--disable-gpu");
+            if (Objects.equals(isHeadless, "true")) {
+                chromeOptions.addArguments("--headless");
+                chromeOptions.addArguments("--disable-gpu");
+            }
             chromeOptions.addArguments("--window-size=1920,1080");
-            String seleniumHubUrl = System.getenv("SELENIUM_HUB_URL");
+
             if (Objects.isNull(seleniumHubUrl) || seleniumHubUrl.isEmpty()) {
                 driver = new ChromeDriver(chromeOptions);
             } else {
@@ -46,6 +56,13 @@ public class Demo {
         }
     }
 
+    /**
+     * Tests the browser by opening Google, printing its title, waiting 5 seconds,
+     * clicking on "Images", waiting 5 seconds, printing the current URL and title,
+     * and then quitting the browser.
+     *
+     * @throws InterruptedException if the thread is interrupted while sleeping
+     */
     @Test(priority = 1)
     public void testBrowser() throws InterruptedException {
         driver.get("https://google.com");
